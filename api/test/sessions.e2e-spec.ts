@@ -124,3 +124,37 @@ describe('Interview sessions', () => {
     expect(res.body.map((s: { title: string }) => s.title)).toEqual(['Newer', 'Older']);
   });
 });
+
+describe('Empty updates', () => {
+  let app: INestApplication;
+  let user: TestUser;
+  const http = () => request(app.getHttpServer());
+
+  beforeAll(async () => {
+    app = await createTestApp();
+  });
+  beforeEach(async () => {
+    await resetDb(app);
+    user = await createUser(app);
+  });
+  afterAll(() => app.close());
+
+  it('treats an empty PATCH as a no-op instead of failing', async () => {
+    const p = await createParticipant(app, user);
+    const s = await http()
+      .post('/api/v1/sessions')
+      .set(user.auth)
+      .send({
+        title: 'Coding: heaps',
+        type: 'CODING',
+        scheduledAt: '2026-10-20T10:00:00Z',
+        durationMin: 60,
+        participantId: p.id,
+      })
+      .expect(201);
+    const session = await http().patch(`/api/v1/sessions/${s.body.id}`).set(user.auth).send({}).expect(200);
+    expect(session.body.title).toBe('Coding: heaps');
+    const participant = await http().patch(`/api/v1/participants/${p.id}`).set(user.auth).send({}).expect(200);
+    expect(participant.body.id).toBe(p.id);
+  });
+});

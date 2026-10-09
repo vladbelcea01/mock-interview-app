@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, count, desc, eq, getTableColumns, gte, ilike, lte, SQL, sql } from 'drizzle-orm';
 import type { AuthUser } from '../auth/auth-user';
-import { offsetOf, Paginated } from '../common/pagination.dto';
+import { definedOnly, offsetOf, Paginated } from '../common/pagination.dto';
 import { escapeLike } from '../common/pg-errors';
 import { DbService } from '../db/db.service';
 import { feedback, InterviewSession, interviewSessions, participants, users } from '../db/schema';
@@ -102,8 +102,14 @@ export class SessionsService {
   async update(id: string, dto: UpdateSessionDto, user: AuthUser): Promise<InterviewSession> {
     const session = await this.findOneOwned(id, user);
     assertEditable(session.status, { ...dto });
-    if (dto.participantId) await this.assertParticipantExists(dto.participantId);
-    const [updated] = await this.db.update(interviewSessions).set(dto).where(eq(interviewSessions.id, id)).returning();
+    const changes = definedOnly(dto);
+    if (Object.keys(changes).length === 0) return session;
+    if (changes.participantId) await this.assertParticipantExists(changes.participantId);
+    const [updated] = await this.db
+      .update(interviewSessions)
+      .set(changes)
+      .where(eq(interviewSessions.id, id))
+      .returning();
     return updated;
   }
 

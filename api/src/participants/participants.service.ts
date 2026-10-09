@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { asc, count, eq, ilike, or, SQL } from 'drizzle-orm';
 import type { AuthUser } from '../auth/auth-user';
-import { offsetOf, Paginated } from '../common/pagination.dto';
+import { definedOnly, offsetOf, Paginated } from '../common/pagination.dto';
 import { escapeLike, isUniqueViolation } from '../common/pg-errors';
 import { DbService } from '../db/db.service';
 import { Participant, participants } from '../db/schema';
@@ -59,9 +59,11 @@ export class ParticipantsService {
   }
 
   async update(id: string, dto: UpdateParticipantDto): Promise<Participant> {
-    await this.findOne(id);
+    const existing = await this.findOne(id);
+    const changes = definedOnly(dto);
+    if (Object.keys(changes).length === 0) return existing;
     try {
-      const [updated] = await this.db.update(participants).set(dto).where(eq(participants.id, id)).returning();
+      const [updated] = await this.db.update(participants).set(changes).where(eq(participants.id, id)).returning();
       return updated;
     } catch (err) {
       if (isUniqueViolation(err)) throw new ConflictException(DUPLICATE_MESSAGE);

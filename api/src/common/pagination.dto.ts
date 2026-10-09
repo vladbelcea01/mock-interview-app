@@ -29,3 +29,8 @@ export interface Paginated<T> {
 }
 
 export const offsetOf = (q: PaginationQueryDto) => (q.page - 1) * q.pageSize;
+
+/** Drops keys whose value is undefined; an update with nothing left is a no-op. */
+export function definedOnly<T extends object>(input: T): Partial<T> {
+  return Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)) as Partial<T>;
+}
