@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { DbModule } from './db/db.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { HealthController } from './health/health.controller';
 import { ParticipantsModule } from './participants/participants.module';
 import { SessionsModule } from './sessions/sessions.module';
@@ -18,6 +19,7 @@ import { SessionsModule } from './sessions/sessions.module';
     AuthModule,
     ParticipantsModule,
     SessionsModule,
+    FeedbackModule,
   ],
   controllers: [HealthController],
   providers: [
