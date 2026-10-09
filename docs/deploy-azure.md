@@ -83,7 +83,7 @@ revision whose image tag is the commit SHA.
 
 ```bash
 az containerapp update -n $APP -g $RG \
-  --set-env-vars CORS_ORIGINS=https://<your-app>.vercel.app,http://localhost:4200
+  --set-env-vars CORS_ORIGINS=https://mock-interview-app-ashy.vercel.app,http://localhost:4200
 ```
 
 ## 6. After the review period
