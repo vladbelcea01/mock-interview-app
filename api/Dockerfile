@@ -1,5 +1,8 @@
+# Base image comes from Google's Docker Hub mirror by default (no Docker Hub auth/rate limits in CI).
+ARG NODE_IMAGE=mirror.gcr.io/library/node:22-alpine
+
 # ---- deps: install all dependencies (cached by lockfile) ----
-FROM node:22-alpine AS deps
+FROM ${NODE_IMAGE} AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -10,7 +13,7 @@ COPY . .
 RUN npm run build && npm prune --omit=dev
 
 # ---- runtime: minimal image, non-root ----
-FROM node:22-alpine AS runtime
+FROM ${NODE_IMAGE} AS runtime
 ENV NODE_ENV=production PORT=3000
 WORKDIR /app
 COPY --from=build --chown=node:node /app/package.json ./

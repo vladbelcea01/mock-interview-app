@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  // Azure Container Apps URL of the API (set after the first deployment).
-  apiUrl: 'https://mock-interview-api.REPLACE_ME.azurecontainerapps.io/api/v1',
+  // Azure Container Apps URL of the API.
+  apiUrl: 'https://mock-interview-api.redsky-d5c93c1e.westeurope.azurecontainerapps.io/api/v1',
 };

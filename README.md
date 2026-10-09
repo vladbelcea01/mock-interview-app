@@ -5,8 +5,8 @@ A web app for preparing, running and reviewing **mock technical interviews**. In
 | | |
 |---|---|
 | **Live app** | https://REPLACE-WITH-VERCEL-URL |
-| **API** | https://REPLACE-WITH-AZURE-FQDN/api/v1 |
-| **API docs (Swagger)** | https://REPLACE-WITH-AZURE-FQDN/api/docs |
+| **API** | https://mock-interview-api.redsky-d5c93c1e.westeurope.azurecontainerapps.io/api/v1 |
+| **API docs (Swagger)** | https://mock-interview-api.redsky-d5c93c1e.westeurope.azurecontainerapps.io/api/docs |
 | **Architecture** | [docs/architecture.md](docs/architecture.md) |
 
 **Demo accounts**
