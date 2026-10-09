@@ -1,0 +1,85 @@
+name: Deploy API
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/vladbelcea01/mock-interview-api
+  RESOURCE_GROUP: rg-mock-interviews
+  CONTAINER_APP: mock-interview-api
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      HAS_AZURE: ${{ secrets.AZURE_CREDENTIALS != '' }}
+      HAS_DB: ${{ secrets.DATABASE_URL != '' }}
+      HAS_RENDER: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SHA }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: api
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ env.SHA }}
+            ${{ env.IMAGE }}:main
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_DB == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      # Migrations run as an explicit pipeline step (not at container start):
+      # a failing migration stops the deploy before any new revision receives traffic.
+      - name: Run database migrations
+        if: env.HAS_DB == 'true'
+        working-directory: api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          npm ci
+          npm run db:migrate
+
+      - name: Azure login
+        if: env.HAS_AZURE == 'true'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Container Apps
+        if: env.HAS_AZURE == 'true'
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          imageToDeploy: ${{ env.IMAGE }}:${{ env.SHA }}
+          containerAppName: ${{ env.CONTAINER_APP }}
+          resourceGroup: ${{ env.RESOURCE_GROUP }}
+          registryUrl: ghcr.io
+
+      # Fallback path (documented in docs/deploy-azure.md): Render pulls the same image.
+      - name: Trigger Render deploy (fallback)
+        if: env.HAS_AZURE != 'true' && env.HAS_RENDER == 'true'
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}&imgURL=${{ env.IMAGE }}:${{ env.SHA }}"
