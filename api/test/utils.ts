@@ -5,7 +5,7 @@ import { configureApp } from '../src/app.setup';
 import { JwtService } from '@nestjs/jwt';
 import type { JwtPayload } from '../src/auth/auth-user';
 import { DbService } from '../src/db/db.service';
-import { Role, users } from '../src/db/schema';
+import { participants, Role, users } from '../src/db/schema';
 
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -40,4 +40,20 @@ export async function createUser(app: INestApplication, role: Role = 'INTERVIEWE
     .get(JwtService)
     .sign({ sub: user.id, email: user.email, name: user.name, role: user.role } satisfies JwtPayload);
   return { id: user.id, token, auth: { Authorization: `Bearer ${token}` } };
+}
+
+let participantSeq = 0;
+export async function createParticipant(app: INestApplication, owner: TestUser, fullName = 'Ana Popescu') {
+  const { db } = app.get(DbService);
+  const [p] = await db
+    .insert(participants)
+    .values({
+      fullName,
+      email: `p${++participantSeq}-${Date.now()}@test.dev`,
+      targetRole: 'Backend Engineer',
+      seniority: 'MID',
+      createdById: owner.id,
+    })
+    .returning();
+  return p;
 }

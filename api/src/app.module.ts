@@ -8,6 +8,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { DbModule } from './db/db.module';
 import { HealthController } from './health/health.controller';
 import { ParticipantsModule } from './participants/participants.module';
+import { SessionsModule } from './sessions/sessions.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ParticipantsModule } from './participants/participants.module';
     DbModule,
     AuthModule,
     ParticipantsModule,
+    SessionsModule,
   ],
   controllers: [HealthController],
   providers: [
