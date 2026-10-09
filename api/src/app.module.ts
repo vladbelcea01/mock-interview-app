@@ -7,6 +7,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { DbModule } from './db/db.module';
 import { HealthController } from './health/health.controller';
+import { ParticipantsModule } from './participants/participants.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { HealthController } from './health/health.controller';
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     DbModule,
     AuthModule,
+    ParticipantsModule,
   ],
   controllers: [HealthController],
   providers: [
