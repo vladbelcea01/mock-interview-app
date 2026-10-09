@@ -128,7 +128,15 @@ async function main(): Promise<void> {
 
       const createdParticipants = await tx
         .insert(participants)
-        .values(PARTICIPANTS.map(({ base: _base, ...p }) => ({ ...p, createdById: admin.id })))
+        .values(
+          PARTICIPANTS.map((p) => ({
+            fullName: p.fullName,
+            email: p.email,
+            targetRole: p.targetRole,
+            seniority: p.seniority,
+            createdById: admin.id,
+          })),
+        )
         .returning();
 
       let counter = 0;
