@@ -1,10 +1,12 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { Public } from '../common/decorators/public.decorator';
 import { DbService } from '../db/db.service';
 
 const DB_TIMEOUT_MS = 3000;
 
+@Public()
 @ApiTags('health')
 @Controller('health')
 export class HealthController {

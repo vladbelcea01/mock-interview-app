@@ -1,10 +1,13 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 
 /** Shared by main.ts and the e2e tests so tests run with the production setup. */
 export function configureApp(app: INestApplication): void {
+  // Behind Azure's ingress proxy: trust the first X-Forwarded-For hop so rate limiting sees the real client IP.
+  (app as NestExpressApplication).set('trust proxy', 1);
   app.setGlobalPrefix('api/v1');
   app.use(helmet());
   app.enableCors({
