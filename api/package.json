@@ -18,7 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "lint:check": "eslint \"{src,test}/**/*.ts\""
+    "lint:check": "eslint \"{src,test}/**/*.ts\"",
+    "db:migrate": "node --env-file-if-exists=.env -r ts-node/register src/db/migrate.ts",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
