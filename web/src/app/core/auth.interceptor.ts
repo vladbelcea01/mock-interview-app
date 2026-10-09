@@ -19,8 +19,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: unknown) => {
       if (err instanceof HttpErrorResponse && isApi) {
         const isAuthCall = req.url.includes('/auth/login') || req.url.includes('/auth/register');
-        if (err.status === 401 && !isAuthCall) {
-          auth.logout();
+        if (err.status === 401) {
+          // A failed sign-in is shown inline by the login form; anywhere else the session has expired.
+          if (!isAuthCall) auth.logout();
         } else if (err.status === 0) {
           snackBar.open(UNREACHABLE, 'Dismiss', { duration: 6000 });
         } else {

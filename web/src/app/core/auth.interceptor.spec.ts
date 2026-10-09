@@ -47,6 +47,16 @@ describe('authInterceptor', () => {
     expect(auth.logout).toHaveBeenCalled();
   });
 
+  it('leaves a failed login to the login form (no logout, no snackbar)', () => {
+    auth.token.mockReturnValue(null);
+    http.post(api('/auth/login'), {}).subscribe({ error: () => undefined });
+    backend
+      .expectOne(api('/auth/login'))
+      .flush({ message: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
+    expect(auth.logout).not.toHaveBeenCalled();
+    expect(snackBar.open).not.toHaveBeenCalled();
+  });
+
   it('shows the API message for other errors', () => {
     auth.token.mockReturnValue('tok');
     http.post(api('/participants'), {}).subscribe({ error: () => undefined });
