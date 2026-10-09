@@ -1,0 +1,29 @@
+name: Seed demo data
+
+# Manual only: wipes the production database and loads deterministic demo data.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "reset" to wipe the database and load demo data'
+        required: true
+
+jobs:
+  seed:
+    if: ${{ github.event.inputs.confirm == 'reset' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run seed
