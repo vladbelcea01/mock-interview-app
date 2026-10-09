@@ -9,6 +9,8 @@ import { DbModule } from './db/db.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { HealthController } from './health/health.controller';
 import { ParticipantsModule } from './participants/participants.module';
+import { ReportsModule } from './reports/reports.module';
+import { SearchModule } from './search/search.module';
 import { SessionsModule } from './sessions/sessions.module';
 
 @Module({
@@ -20,6 +22,8 @@ import { SessionsModule } from './sessions/sessions.module';
     ParticipantsModule,
     SessionsModule,
     FeedbackModule,
+    SearchModule,
+    ReportsModule,
   ],
   controllers: [HealthController],
   providers: [
