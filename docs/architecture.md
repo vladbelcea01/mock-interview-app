@@ -74,7 +74,7 @@ sequenceDiagram
     S->>DB: INSERT … ON CONFLICT (session_id) DO UPDATE
     DB-->>S: feedback row
     S-->>UI: 200 feedback JSON
-    Note over INT,UI: Any error → snackbar with the API's message; 401 → logout
+    Note over INT,UI: Any error shows a snackbar with the API message. A 401 logs the user out.
 ```
 
 ## 3. Data model
