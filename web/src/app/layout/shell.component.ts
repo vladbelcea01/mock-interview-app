@@ -11,6 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../core/auth.service';
+import { initialsOf } from '../shared/initials';
 
 @Component({
   selector: 'app-shell',
@@ -46,8 +47,13 @@ import { AuthService } from '../core/auth.service';
           aria-label="Global search"
         />
       </form>
-      <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
-        <mat-icon>account_circle</mat-icon>
+      <button
+        type="button"
+        class="user-button"
+        [matMenuTriggerFor]="userMenu"
+        [attr.aria-label]="'Account menu for ' + (auth.user()?.name ?? '')"
+      >
+        <span class="avatar" aria-hidden="true">{{ initials() }}</span>
         <span class="user-name">{{ auth.user()?.name }}</span>
       </button>
       <mat-menu #userMenu="matMenu">
@@ -96,9 +102,18 @@ import { AuthService } from '../core/auth.service';
     .active { background: var(--mat-sys-secondary-container); border-radius: 999px; }
     .scope { padding: 0 24px; font-size: 0.8rem; }
     .menu-header { display: flex; flex-direction: column; padding: 8px 16px 12px; gap: 2px; }
+    .user-button { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 4px 14px 4px 4px;
+      border: 1px solid transparent; border-radius: 999px; background: transparent; color: inherit;
+      font: inherit; font-size: 0.95rem; font-weight: 500; cursor: pointer; flex-shrink: 0; }
+    .user-button:hover { background: var(--app-bg); border-color: var(--app-border); }
+    .user-button:focus-visible { outline: 2px solid var(--mat-sys-primary); outline-offset: 2px; }
+    .avatar { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      background: var(--mat-sys-primary); color: var(--mat-sys-on-primary); font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.02em; }
     .role { font-size: 0.75rem; font-weight: 600; color: var(--mat-sys-primary); text-transform: uppercase; }
     @media (max-width: 720px) {
       .brand-text, .user-name { display: none; }
+      .user-button { padding: 4px; }
     }
   `,
 })
@@ -111,6 +126,7 @@ export class ShellComponent {
       .pipe(map((r) => r.matches)),
     { initialValue: false },
   );
+  protected readonly initials = computed(() => initialsOf(this.auth.user()?.name));
   protected readonly scopeLabel = computed(() =>
     this.auth.isAdmin() ? 'Viewing all interviewers' : 'Viewing your interviews',
   );
